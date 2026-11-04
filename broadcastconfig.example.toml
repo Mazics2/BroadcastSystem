@@ -1,0 +1,179 @@
+# ==============================================================================
+#  BroadcastSystem - Örnek Yapılandırma Dosyası (broadcastconfig.toml)
+# ==============================================================================
+#  Dosya Konumu:
+#    csgo/addons/swiftlys2/configs/plugins/BroadcastSystem/broadcastconfig.toml
+#    (veya csgo/addons/swiftlys2/plugins/BroadcastSystem/broadcastconfig.toml)
+#
+#  İlk çalıştırmada bu dosya yoksa eklenti tarafından otomatik oluşturulur.
+#  Dosyayı düzenledikten sonra oyun içinden !duyurureload yazarak veya
+#  !duyurumenu görsel menüsünden sunucuyu kapatmadan canlı güncelleyebilirsiniz.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. GENEL AYARLAR ([settings])
+# ------------------------------------------------------------------------------
+[settings]
+# Zamanlı otomatik duyurular aktif olsun mu?
+enable_ads = true
+
+# Kaç saniyede bir sıradaki duyuru yayınlansın? (Minimum: 5.0)
+ad_interval_seconds = 45.0
+
+# Duyuru döngü modu:
+#   "sequential" -> [[ads]] sırasına göre tek tek döner
+#   "random"     -> Her duyurunun 'weight' (ağırlık) değerine göre rastgele seçer
+rotation_mode = "sequential"
+
+# Duyuruların yayınlanması için sunucuda olması gereken minimum gerçek oyuncu sayısı (0 = her zaman)
+min_players_for_ads = 0
+
+# Botlara mesaj gönderilmesin mi? (true önerilir)
+skip_bots = true
+
+# true yapılırsa CenterHTML kutuları yalnızca ölü veya izleyici oyunculara gösterilir
+# (Çatışma ortasında yaşayan oyuncuların ekranını kapatmamak için kullanışlıdır)
+show_html_when_dead_only = false
+
+# CenterHTML duyurularının ekranda kalacağı varsayılan süre (milisaniye, 5000 = 5 saniye)
+default_html_duration_ms = 5000
+
+# Sohbet mesajlarının başına otomatik ön ek (prefix) eklensin mi?
+enable_prefix = true
+prefix = "[gold][Duyuru][default]"
+
+# {SERVERNAME} değişkeni için özel sunucu adı (Boş "" bırakılırsa sunucunun 'hostname' convar'ı okunur)
+server_name_override = ""
+
+# Duyurularda {DOMAIN}, {DISCORD}, {WEBSITE} yazdığınızda otomatik yerleşecek adresler
+server_domain = "oyun.sunucunuz.com"
+discord_invite = "discord.gg/sunucunuz"
+website_url = "www.sunucunuz.com"
+
+# İsteğe bağlı IP -> Ülke CSV dosyası (yoksa oyuncunun CS2 dilinden otomatik çözülür)
+geoip_database_path = "ip-country.csv"
+
+# !duyurumenu açıkken adminin W/S/A/D ile yürümek yerine menüde rahat gezinmesi için dondur
+freeze_while_menu_open = true
+
+# Yayınlanan her duyuru sunucu konsoluna da loglansın mı?
+log_to_console = false
+debug = false
+
+
+# ------------------------------------------------------------------------------
+# 2. HOŞ GELDİN & AYRILMA MESAJLARI ([welcome])
+# ------------------------------------------------------------------------------
+[welcome]
+# Sunucuya giren oyuncuya özel karşılama mesajı gönderilsin mi?
+enable_welcome = true
+
+# Oyuncu bağlandıktan kaç saniye sonra hoş geldin mesajı gösterilsin?
+welcome_delay_seconds = 3.0
+
+# Giriş yapan oyuncuya özel mesaj hangi kanaldan gösterilsin?
+# Seçenekler:
+#   "both"   -> Hem Sohbet (private_chat_lines) hem de CenterHTML (private_html_message)
+#   "chat"   -> Sadece Sohbet
+#   "html"   -> Sadece CenterHTML
+#   "center" -> Sadece klasik Center
+#   "alert"  -> Sadece Alert kutusu
+#   "none"   -> Özel mesaj gönderme
+private_channel = "both"
+
+# Giriş yapan oyuncunun SADECE KENDİSİNİN göreceği çok satırlı sohbet mesajı:
+private_chat_lines = [
+    "[gold]══════════════════════════════════════════════════[default]",
+    "👋 Hoş geldin [lime]{NAME}[default] ([gold]{COUNTRY}[default])! Sunucu: [lightblue]{SERVERNAME}[default]",
+    "🗺️ Harita: [gold]{MAP}[default] | 👥 Oyuncular: [lime]{PLAYERS}/{MAXPLAYERS}[default] | 💬 Discord: [lightblue]{DISCORD}[default]",
+    "🌐 IP: [gold]{DOMAIN}[default] | İyi oyunlar dileriz!",
+    "[gold]══════════════════════════════════════════════════[default]"
+]
+
+# Giriş yapan oyuncunun SADECE KENDİSİNİN ekran ortasında göreceği zengin HTML karşılama kartı:
+private_html_message = "<font class='fontSize-m' color='#38BDF8'><b>✦ HOŞ GELDİN {NAME} ✦</b></font><br><font class='fontSize-sm' color='#F8FAFC'>{SERVERNAME}</font><br><font class='fontSize-xs' color='#FACC15'>Harita: {MAP} • Oyuncu: {PLAYERS}/{MAXPLAYERS} • Ülke: {COUNTRY} ({COUNTRY_CODE})</font><br><font class='fontSize-xs' color='#4ADE80'>Discord: {DISCORD} • İyi eğlenceler!</font>"
+private_html_duration_ms = 6000
+
+# Oyuncu girdiğinde TÜM SUNUCUYA katılma duyurusu geçilsin mi?
+enable_public_join = true
+public_join_message = "[lime]➕ {NAME}[default] ([gold]{COUNTRY}[default]) sunucuya katıldı! ([lightblue]{PLAYERS}/{MAXPLAYERS}[default])"
+
+# Oyuncu çıktığında TÜM SUNUCUYA ayrılma duyurusu geçilsin mi? ({PLAYTIME} = içeride kaldığı süre)
+enable_public_leave = true
+public_leave_message = "[lightred]➖ {NAME}[default] ([grey]{STEAMID2}[default]) sunucudan ayrıldı. (Oynama süresi: [gold]{PLAYTIME}[default])"
+
+
+# ------------------------------------------------------------------------------
+# 3. KOMUT İSİMLERİ & YETKİ ([commands])
+# ------------------------------------------------------------------------------
+[commands]
+menu_command = "duyurumenu"             # !duyurumenu (veya !bmenu, !admenu)
+say_broadcast_command = "duyuru"        # !duyuru <mesaj>
+center_broadcast_command = "centerduyuru"# !centerduyuru <mesaj>
+html_broadcast_command = "htmlduyuru"   # !htmlduyuru <mesaj>
+alert_broadcast_command = "alertduyuru" # !alertduyuru <mesaj>
+countdown_command = "gerisayim"         # !gerisayim <saniye> "<başlık>"
+poll_command = "anket"                  # !anket "<soru>" "<seçenek1>" "<seçenek2>"
+vote_command = "oy"                     # !oy <numara> (tüm oyuncular kullanabilir)
+next_ad_command = "sonrakiduyuru"       # !sonrakiduyuru
+reload_command = "duyurureload"         # !duyurureload (veya !broadcast_reload)
+admin_permission = "broadcast.admin"    # Admin komutları için gereken yetki ("admin" ve "root" da her zaman geçerlidir)
+
+
+# ------------------------------------------------------------------------------
+# 4. ZAMANLI OTOMATİK DUYURULAR ([[ads]])
+# ------------------------------------------------------------------------------
+# İstediğiniz kadar [[ads]] bloğu ekleyebilirsiniz.
+# Her blokta 'chat', 'center', 'html' ve 'alert' kanallarından istediğinizi tek başına
+# veya aynı anda birlikte kullanabilirsiniz.
+
+# ÖRNEK 1: Hem Sohbet hem de Zengin HTML gösteren genel sunucu bilgisi
+[[ads]]
+id = "sunucu_durumu"
+name = "Sunucu Durumu"
+enabled = true
+chat = "[lime]Sunucu Durumu:[default] [gold]{PLAYERS}/{MAXPLAYERS}[default] Oyuncu (T: [gold]{T_COUNT}[default] | CT: [lightblue]{CT_COUNT}[default]) | Harita: [lightblue]{MAP}[default] | Saat: [gold]{TIME}[default]"
+html = "<font class='fontSize-m' color='#38BDF8'><b>✦ {SERVERNAME} ✦</b></font><br><font class='fontSize-sm' color='#F8FAFC'>Aktif Oyuncu: <font color='#4ADE80'><b>{PLAYERS}/{MAXPLAYERS}</b></font> • Harita: <font color='#FACC15'><b>{MAP}</b></font></font>"
+html_duration_ms = 4500
+weight = 2
+
+# ÖRNEK 2: Çok satırlı (\n) Sohbet + Center duyurusu
+[[ads]]
+id = "discord_davet"
+name = "Discord Topluluğu"
+enabled = true
+use_prefix = true
+chat = "💬 Çekilişler, turnuvalar ve destek için Discord sunucumuza katılın!\n👉 Davet Adresi: [lightblue]{DISCORD}[default] | Web: [gold]{WEBSITE}[default]"
+center = "💬 Discord: {DISCORD}"
+weight = 1
+
+# ÖRNEK 3: Sadece VIP OLMAYAN oyunculara gösterilen VIP satış reklamı (permission = "!vip")
+[[ads]]
+id = "vip_reklam"
+name = "VIP Tanıtımı"
+enabled = true
+permission = "!vip"
+chat = "Merhaba [lime]{NAME}[default]! [gold]★ VIP Üyelik ★[default] ayrıcalıklarını incelemek için: [lightblue]{WEBSITE}[default]"
+html = "<font class='fontSize-m' color='#FACC15'><b>★ VIP AYRICALIKLARI ★</b></font><br><font class='fontSize-sm' color='#E2E8F0'>Sayın <b>{NAME}</b>, özel etiket ve ayrıcalıklar için: <font color='#38BDF8'><b>{WEBSITE}</b></font></font>"
+html_duration_ms = 5000
+weight = 1
+
+# ÖRNEK 4: Sadece Terörist (T) takımına gösterilen takım bazlı ipucu/duyuru
+[[ads]]
+id = "t_takim_hatirlatma"
+name = "T Takım Görevi"
+enabled = true
+teams = ["T"]
+chat = "[gold][T Görev][default] Bombayı kurmak ve takım arkadaşlarınla birlikte hareket etmek raunt kazandırır!"
+weight = 1
+
+# ÖRNEK 5: Sadece belirli haritalarda (örn: de_dust2, de_mirage) gösterilen duyuru
+[[ads]]
+id = "rekabetci_harita_bilgi"
+name = "Harita Bilgilendirmesi"
+enabled = true
+maps = ["de_dust2", "de_mirage", "de_inferno"]
+chat = "Şu anda [gold]{MAP}[default] haritasında oynuyorsunuz. Senin skorun: [lime]{KILLS} Öldürme / {DEATHS} Ölüm[default] (Ping: {PING}ms)"
+alert = "⚖️ Kurallara uyun ve adil oynayın! İyi eğlenceler!"
+weight = 1
+
