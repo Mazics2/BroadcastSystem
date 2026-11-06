@@ -2,6 +2,7 @@ using BroadcastSystem.Config;
 using BroadcastSystem.Core;
 using BroadcastSystem.Utils;
 using Microsoft.Extensions.Logging;
+using PanoramaHud.Contract;
 using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Commands;
 using SwiftlyS2.Shared.Events;
@@ -16,7 +17,7 @@ namespace BroadcastSystem;
     Version = "2.1.0",
     Name = "BroadcastSystem",
     Author = "surfevo",
-    Description = "Zamanlı otomatik duyurular, gelişmiş hoş geldin/ayrılma mesajları, anlık admin anonsları, canlı anket/geri sayım ve görsel yönetim menüsü."
+    Description = "Zamanlı otomatik duyurular, gelişmiş hoş geldin/ayrılma mesajları, anlık admin anonsları, canlı anket/geri sayım ve Panorama HUD görsel yönetim menüsü."
 )]
 public class Plugin(ISwiftlyCore core) : BasePlugin(core)
 {
@@ -25,6 +26,9 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
     private readonly GeoIpHelper _geoIp = new();
     private BroadcastService? _broadcastService;
     private BroadcastAdminMenu? _adminMenu;
+    private IPanoramaHudApi? _hudApi;
+    private IHudScope? _hudScope;
+    private BroadcastPanoramaMenu? _panoramaMenu;
 
     private readonly List<Guid> _commandGuids = new();
     private Guid _chatHookGuid;
@@ -52,7 +56,22 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
 
         _broadcastService = new BroadcastService(Core, _config, _geoIp);
         _adminMenu = new BroadcastAdminMenu(Core, _configLoader, _config, _broadcastService, StartTimers);
-        _broadcastService.SetMenuOpenPredicate(slot => _adminMenu.IsMenuOpen(slot));
+        _broadcastService.SetMenuOpenPredicate(slot =>
+            (_adminMenu != null && _adminMenu.IsMenuOpen(slot)) ||
+            (_panoramaMenu != null && _panoramaMenu.IsMenuOpen(slot)));
+
+        if (_hudScope != null && _hudApi != null && _panoramaMenu == null)
+        {
+            _panoramaMenu = new BroadcastPanoramaMenu(
+                Core,
+                _hudScope,
+                _hudApi,
+                _configLoader,
+                _config,
+                _broadcastService,
+                StartTimers);
+            _panoramaMenu.BuildMenus();
+        }
 
         RegisterCommands();
         RegisterEvents();
@@ -72,17 +91,47 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
         }
 
         Core.Logger.LogInformation(
-            "[BroadcastSystem] v2.1.0 yüklendi ({Ads} duyuru, Aralık: {Interval:0}sn, GeoIP: {Geo}). Menü: !{MenuCmd}",
+            "[BroadcastSystem] v2.1.0 yüklendi ({Ads} duyuru, Aralık: {Interval:0}sn, GeoIP: {Geo}, PanoramaHud: {Phud}). Menü: !{MenuCmd}",
             _config.Ads.Count,
             _config.Settings.AdIntervalSeconds,
             _geoIp.IsDatabaseLoaded ? "Aktif" : "Dil/IP Fallback",
+            _panoramaMenu?.IsAvailable == true ? "Aktif (Görsel GUI)" : "Devre Dışı (Klasik Fallback)",
             _config.Commands.MenuCommand);
+    }
+
+    public override void UseSharedInterface(IInterfaceManager interfaceManager)
+    {
+        if (!interfaceManager.HasSharedInterface("PanoramaHud")) return;
+        try
+        {
+            _hudApi = interfaceManager.GetSharedInterface<IPanoramaHudApi>("PanoramaHud");
+            _hudScope = _hudApi.CreateScope("broadcastsystem");
+            if (_broadcastService != null && _configLoader != null && _panoramaMenu == null)
+            {
+                _panoramaMenu = new BroadcastPanoramaMenu(
+                    Core,
+                    _hudScope,
+                    _hudApi,
+                    _configLoader,
+                    _config,
+                    _broadcastService,
+                    StartTimers);
+                _panoramaMenu.BuildMenus();
+            }
+            Core.Logger.LogInformation("[BroadcastSystem] Panorama HUD arayüzü bağlandı.");
+        }
+        catch (Exception ex)
+        {
+            Core.Logger.LogError(ex, "[BroadcastSystem] Panorama HUD başlatılırken hata oluştu.");
+        }
     }
 
     public override void Unload()
     {
         StopTimers();
         _broadcastService?.StopAllInteractiveTimers();
+        _panoramaMenu?.Dispose();
+        _hudScope?.Dispose();
         _adminMenu?.CloseAll();
         UnregisterEvents();
         UnregisterCommands();
@@ -178,6 +227,9 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
 
     private HookResult OnClientChat(int playerId, string text, bool teamOnly)
     {
+        if (_panoramaMenu != null && _panoramaMenu.TryConsumeChatInput(playerId, text))
+            return HookResult.Stop;
+
         if (_adminMenu != null && _adminMenu.TryConsumeChatInput(playerId, text))
             return HookResult.Stop;
 
@@ -212,6 +264,7 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
     private void OnClientDisconnected(IOnClientDisconnectedEvent e)
     {
         _lastCmdTime.Remove(e.PlayerId);
+        _panoramaMenu?.OnPlayerDisconnected(e.PlayerId);
         _adminMenu?.OnPlayerDisconnected(e.PlayerId);
         _broadcastService?.OnPlayerDisconnected(e.PlayerId);
     }
@@ -219,6 +272,7 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
     private void OnMapLoad(IOnMapLoadEvent e)
     {
         _lastCmdTime.Clear();
+        _panoramaMenu?.OnMapLoad();
         _adminMenu?.CloseAll();
         _broadcastService?.OnMapChanged();
     }
@@ -413,6 +467,13 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
     private void ExecuteMenuCommand(IPlayer admin)
     {
         if (!CheckCallerPermission(admin)) return;
+
+        if (_panoramaMenu != null && _panoramaMenu.IsAvailable)
+        {
+            _panoramaMenu.Open(admin);
+            return;
+        }
+
         _adminMenu?.Toggle(admin);
     }
 
@@ -565,6 +626,7 @@ public class Plugin(ISwiftlyCore core) : BasePlugin(core)
             _geoIp.TryLoadDatabase(ResolveConfigDirectory(), Core.PluginPath, _config.Settings.GeoIpDatabasePath);
             _broadcastService.UpdateConfig(_config);
             _adminMenu?.UpdateConfig(_config);
+            _panoramaMenu?.UpdateConfig(_config);
 
             RegisterCommands();
             StartTimers();

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PanoramaHud.Contract</name>
+    </assembly>
+    <members>
+        <member name="T:PanoramaHud.Contract.ToastKind">
+            <summary>Toast visual kind.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.BannerKind">
+            <summary>Banner visual kind.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.HudPriority">
+            <summary>Priority used to order queues and resolve conflicts. Critical bypasses player mutes (allow-listed owners only).</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.WidgetZone">
+            <summary>Screen corner a widget lives in.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.ButtonStyle">
+            <summary>Dialog button style.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.CloseReason">
+            <summary>Why a menu or dialog was closed.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.MenuInputMode">
+            <summary>How a player drives menus and dialogs: W/S + E/R keys, number keys (needs a one-time bind) or the mouse.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.IWidgetHandle">
+            <summary>Persistent widget. Percent is clamped to 0-100 and rounded to the nearest 5.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.IPanoramaHudApi">
+            <summary>Shared interface registered as "PanoramaHud".</summary>
+        </member>
+        <member name="M:PanoramaHud.Contract.IPanoramaHudApi.CreateScope(System.String)">
+            <summary>Creates the scope every element of an owner is opened through. A second call with the same name disposes the previous scope.</summary>
+        </member>
+        <member name="M:PanoramaHud.Contract.IPanoramaHudApi.GetInputMode(SwiftlyS2.Shared.Players.IPlayer)">
+            <summary>The input mode the player uses for menus (their preference, or the server default).</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.IHudScope">
+            <summary>Owner-bound entry point. Disposing removes all of the owner's elements for every player.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.IHudContext">
+            <summary>Callback context. Callbacks always run on the next frame.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.IMenu">
+            <summary>A built menu; open it for any number of players.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.IMenuBuilder">
+            <summary>Fluent menu builder. Rows are paged 6 per page.</summary>
+        </member>
+        <member name="M:PanoramaHud.Contract.IMenuBuilder.Items(System.Action{SwiftlyS2.Shared.Players.IPlayer,PanoramaHud.Contract.IMenuBuilder})">
+            <summary>Per-player dynamic rows, appended after the static rows on every draw.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.IDialogBuilder">
+            <summary>Fluent dialog builder (1-4 buttons).</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.ToastOptions">
+            <summary>Toast request. Text supports [color]...[/] markup.</summary>
+        </member>
+        <member name="P:PanoramaHud.Contract.ToastOptions.Duration">
+            <summary>Null = server default.</summary>
+        </member>
+        <member name="P:PanoramaHud.Contract.ToastOptions.Key">
+            <summary>A toast with the same key (per owner) updates the existing one instead of opening a new slot.</summary>
+        </member>
+        <member name="T:PanoramaHud.Contract.BannerOptions">
+            <summary>Center banner request.</summary>
+        </member>
+        <member name="P:PanoramaHud.Contract.BannerOptions.Duration">
+            <summary>Null = server default.</summary>
+        </member>
+    </members>
+</doc>

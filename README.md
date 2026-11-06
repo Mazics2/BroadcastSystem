@@ -18,7 +18,9 @@ Counter-Strike 2 (CS2) ve **SwiftlyS2 (.NET 10 / v1.5.0+)** altyapısı için ge
   - `GeoLite2-Country.mmdb` dosyasıyla IP'den ülke bayrağı/kodu çözümleme (`{COUNTRY}`, `{COUNTRY_CODE}`).
   - Veritabanı yoksa istemci dilinden (`PlayerLanguage`) otomatik güvenli ülke tahmini.
 - **🎮 Oyun İçi Görsel Admin Menüsü (`!duyurumenu`):**
-  - Panorama CenterHTML ve `W / S / A / D / E / R` tuş navigasyonuyla çalışan etkileşimli yönetim menüsü.
+  - **Panorama HUD Entegrasyonu:** Native CS2 Panorama UI kartları, butonlar, açılır listeler, şablon sihirbazı, onay diyalogları ve Toast bildirimleri.
+  - **Sıfır Teknik Bilgi / Sıfır Komut:** Tek tıkla hazır şablonlardan (Discord, VIP, Kurallar, Mağaza vb.) duyuru ekleme, anında önizleme ve test etme.
+  - **Klasik Fallback:** PanoramaHud yüklü olmadığında otomatik devreye giren `CenterHTML` ve `W/S/A/D/E/R` tuş navigasyonlu menü desteği.
 - **⏱️ Canlı Geri Sayım (`!gerisayim`):**
   - Ekran ortasında saniye saniye canlı ilerleme çubuğuyla animasyonlu geri sayım.
 - **🗳️ Canlı Oylama / Anket (`!anket` & `!oy`):**
